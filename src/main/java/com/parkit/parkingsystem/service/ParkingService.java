@@ -1,16 +1,5 @@
 package com.parkit.parkingsystem.service;
 
-import com.parkit.parkingsystem.config.DataBaseConfig;
-import com.parkit.parkingsystem.constants.DBConstants;
-import com.parkit.parkingsystem.constants.ParkingType;
-import com.parkit.parkingsystem.dao.ParkingSpotDAO;
-import com.parkit.parkingsystem.dao.TicketDAO;
-import com.parkit.parkingsystem.model.ParkingSpot;
-import com.parkit.parkingsystem.model.Ticket;
-import com.parkit.parkingsystem.util.InputReaderUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,7 +7,23 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import com.parkit.parkingsystem.config.DataBaseConfig;
+import com.parkit.parkingsystem.constants.ParkingType;
+import com.parkit.parkingsystem.dao.ParkingSpotDAO;
+import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.model.ParkingSpot;
+import com.parkit.parkingsystem.model.Ticket;
+import com.parkit.parkingsystem.util.InputReaderUtil;
+
+/**
+ * Contains methods used for vehicle entry / exit processing.
+ * Get a method to verify the next parking spot available
+ * @author Heimdall
+ *
+ */
 public class ParkingService {
 
     private static final Logger logger = LogManager.getLogger("ParkingService");
@@ -36,38 +41,52 @@ public class ParkingService {
         this.ticketDAO = ticketDAO;
     }
 
+    /**
+     * Look in DB if a Car already have a ticket with the choosen parameters
+     * Return true if the given informations are found at least one time
+     * @param reg
+     * @param outTime
+     * @return boolean
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     private Boolean isKnownRegistrationInParking(String reg, LocalDateTime outTime) throws ClassNotFoundException, SQLException  {
     	
-    	Boolean exist;
-		try (Connection con = dataBaseConfig.getConnection())
-			 {
+    	Connection con = null;
+		try {
+			con = dataBaseConfig.getConnection();
+		
+			
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM ticket WHERE VEHICLE_REG_NUMBER =? AND OUT_TIME=?");
 			ps.setString(1,  reg);
 			ps.setTimestamp(2, Timestamp.valueOf(outTime));
 			ResultSet rs = ps.executeQuery();
 					
-			if (rs.isBeforeFirst()) {
-				
-				exist = true;
-				
-			}
-			else  {
-				exist = false;
-			}
-			//con.close();
-			return exist;
+			return rs.next();
 		}
+		finally {
+			
+		}
+		//CATCH /FINALLY
     	
     }
-    
+   
+    /**
+     * Save ticket for incomming vehicle in DB, and give in output to user the parking spot available.
+     * Information for the ticket are get by getVehicleRegistration() 
+     * getNextParkingNumberIfAvailable() is use to get vehcile type, and parking spot adapted for type and avability
+     */
     public void processIncomingVehicle() {
         try{
             ParkingSpot parkingSpot = getNextParkingNumberIfAvailable();
             String vehicleRegNumber = getVehicleRegNumber();
-           if(parkingSpot !=null && parkingSpot.getId() > 0 ){
+           if(parkingSpot !=null && parkingSpot.getId() > 0  ){
             	
                 parkingSpot.setAvailable(false);
-                parkingSpotDAO.updateParking(parkingSpot);//allot this parking space and mark it's availability as false
+                /*
+                 * allot this parking space and mark it's availability as false
+                 */
+                parkingSpotDAO.updateParking(parkingSpot);
 
                 LocalDateTime inTime = LocalDateTime.now();
                 Ticket ticket = new Ticket();
@@ -99,6 +118,11 @@ public class ParkingService {
         return inputReaderUtil.readVehicleRegistrationNumber();
     }
 
+    /**
+     * Get the vehicle type by prompting user with getVehicleType()
+     * Choose a parking spot depending of vehicle type , and avability
+     * @return parkingSpot
+     */
     public ParkingSpot getNextParkingNumberIfAvailable(){
         int parkingNumber=0;
         ParkingSpot parkingSpot = null;
@@ -137,6 +161,11 @@ public class ParkingService {
         }
     }
 
+    /**
+     * Generate fare depending of parking duration, and type of vehicle
+     * Ticket information are retrieved from DB.
+     * Ticket information in DB is updated with price and outTime.
+     */
     public void processExitingVehicle() {
         try{
             String vehicleRegNumber = getVehicleRegNumber();
@@ -148,8 +177,15 @@ public class ParkingService {
                 ParkingSpot parkingSpot = ticket.getParkingSpot();
                 parkingSpot.setAvailable(true);
                 parkingSpotDAO.updateParking(parkingSpot);
-                System.out.println("Please pay the parking fare: " + ticket.getPrice());
+                if(ticket.getPrice() ==0) {
+                	System.out.println("You stayed less than 30mn. No fare to pay");
+                }
+                else {
+                	System.out.println("Please pay the parking fare: " + ticket.getPrice());
+				}
+                
                 System.out.println("Recorded out-time for vehicle number: " + ticket.getVehicleRegNumber() + " is:" + outTime+"\n");
+                
             }else{
                 System.out.println("Unable to update ticket information. Error occurred\n");
             }

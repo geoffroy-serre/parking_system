@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -70,7 +69,7 @@ public class ParkingDataBaseIT {
 		parkingService.processIncomingVehicle();
 		Connection con = dataBaseTestConfig.getConnection();
 		Statement st = con.createStatement();
-		ResultSet rs = st.executeQuery("SELECT * FROM ticket WHERE VEHICLE_REG_NUMBER='ABCDEF'");
+		ResultSet rs = st.executeQuery("SELECT * FROM ticket WHERE VEHICLE_REG_NUMBER='ABCDEF' AND OUT_TIME IS NULL");
 		assertTrue(rs.isLast());
 		
 			
@@ -119,7 +118,7 @@ public class ParkingDataBaseIT {
 		assertEquals("1", rs.getString("ID"));
 		assertEquals(1, rs.getInt("PARKING_NUMBER"));
 		assertEquals("ABCDEF", rs.getString("VEHICLE_REG_NUMBER"));
-		assertEquals(1.5d, rs.getDouble("PRICE"));
+		assertEquals(0d, rs.getDouble("PRICE"));
 		assertTrue(rs.getString("IN_TIME") != null);
 		assertTrue(rs.getString("OUT_TIME") != null);
 

@@ -7,6 +7,12 @@ public class ParkingSpot {
     private ParkingType parkingType;
     private boolean isAvailable;
 
+    /**
+     * Parking spot is defined by:
+     * @param number
+     * @param parkingType from ParkingType enum: CAR, BIKE
+     * @param isAvailable 
+     */
     public ParkingSpot(int number, ParkingType parkingType, boolean isAvailable) {
         this.number = number;
         this.parkingType = parkingType;

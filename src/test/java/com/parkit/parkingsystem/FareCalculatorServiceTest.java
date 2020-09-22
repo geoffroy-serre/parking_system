@@ -102,6 +102,7 @@ public class FareCalculatorServiceTest {
         fareCalculatorService.calculateFare(ticket);
         assertEquals(0 , ticket.getPrice());
     }
+    
     @Test
     public void calculate_Fare_Car_With_less_Half_Hour_Parking_Time(){
     	LocalDateTime inTime = LocalDateTime.of(2020, 11, 11, 11, 11);
@@ -114,6 +115,7 @@ public class FareCalculatorServiceTest {
         fareCalculatorService.calculateFare(ticket);
         assertEquals(0 , ticket.getPrice());
     }
+    
     @Test
     public void calculate_Fare_Car_With_More_Half_Hour_Less_Hour_Parking_Time(){
     	LocalDateTime inTime = LocalDateTime.of(2020, 11, 11, 11, 11);

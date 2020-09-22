@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class TicketDAO {
 
@@ -19,6 +20,11 @@ public class TicketDAO {
 
 	public DataBaseConfig dataBaseConfig = new DataBaseConfig();
 
+	/**
+	 * Save Ticket information in DB
+	 * @param ticket
+	 * @return
+	 */
 	public boolean saveTicket(Ticket ticket){
 		Connection con = null;
 		try {
@@ -37,10 +43,16 @@ public class TicketDAO {
 			logger.error("Error fetching next available slot",ex);
 		}finally {
 			dataBaseConfig.closeConnection(con);
-			return false;
+			
 		}
+		return false;
 	}
 
+	/**
+	 * Retrieve ticket from DB for the given vehicleRegNumber
+	 * @param vehicleRegNumber
+	 * @return
+	 */
 	public Ticket getTicket(String vehicleRegNumber) {
 		Connection con = null;
 		Ticket ticket = null;
@@ -62,21 +74,30 @@ public class TicketDAO {
 			}
 			dataBaseConfig.closeResultSet(rs);
 			dataBaseConfig.closePreparedStatement(ps);
+			
 		}catch (Exception ex){
 			logger.error("Error fetching next available slot",ex);
 		}finally {
 			dataBaseConfig.closeConnection(con);
-			return ticket;
+			
 		}
+		return ticket;
+		
 	}
 
+	/**
+	 * Update ticket in DB with calculated price and outTime
+	 * @param ticket
+	 * @return
+	 */
 	public boolean updateTicket(Ticket ticket) {
 		Connection con = null;
 		try {
 			con = dataBaseConfig.getConnection();
 			PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_TICKET);
 			ps.setDouble(1, ticket.getPrice());
-			Timestamp timeStamp = Timestamp.valueOf(ticket.getInTime());
+			//was ticket.getintime()
+			Timestamp timeStamp = Timestamp.valueOf(ticket.getOutTime());
 			ps.setTimestamp(2, timeStamp);
 			ps.setInt(3,ticket.getId());
 			ps.execute();
