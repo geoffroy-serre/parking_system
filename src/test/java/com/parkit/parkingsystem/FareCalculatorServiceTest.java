@@ -56,7 +56,7 @@ public class FareCalculatorServiceTest {
     @Test
     public void calculate_Fare_Unkown_Type(){
     	LocalDateTime inTime = LocalDateTime.of(2020, 11, 11, 11, 11);
-        LocalDateTime outTime = LocalDateTime.of(2020, 11, 11, 11, 11);
+        LocalDateTime outTime = LocalDateTime.of(2020, 11, 11, 12, 11);
         ParkingSpot parkingSpot = new ParkingSpot(1, null,false);
 
         ticket.setInTime(inTime);

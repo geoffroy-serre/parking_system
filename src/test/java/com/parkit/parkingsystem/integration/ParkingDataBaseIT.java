@@ -1,6 +1,7 @@
 package com.parkit.parkingsystem.integration;
 
 
+import com.parkit.parkingsystem.customexceptions.RegIsAlreadyParkedException;
 import com.parkit.parkingsystem.dao.ParkingSpotDAO;
 import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
@@ -16,12 +17,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 
@@ -52,9 +53,9 @@ public class ParkingDataBaseIT {
 		dataBasePrepareService.clearDataBaseEntries();
 		//ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 		//parkingService.processIncomingVehicle();
-		
+
 	}
-	
+
 	@AfterAll
 	private static void tearDown(){
 
@@ -63,20 +64,19 @@ public class ParkingDataBaseIT {
 	@Test
 	public void test_Registration_can_be_only_present_one_time_if_active() throws Exception{
 		//TODO: check that we can't have two time the same registration in the same time in the parking lot.
-		
-		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+
+		ParkingService parkingService;
+
+		parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+
 		parkingService.processIncomingVehicle();
-		parkingService.processIncomingVehicle();
-		Connection con = dataBaseTestConfig.getConnection();
-		Statement st = con.createStatement();
-		ResultSet rs = st.executeQuery("SELECT * FROM ticket WHERE VEHICLE_REG_NUMBER='ABCDEF' AND OUT_TIME IS NULL");
-		assertTrue(rs.isLast());
-		
-			
+		//parkingService.processIncomingVehicle();
+		assertThrows(RegIsAlreadyParkedException.class, () -> parkingService.processIncomingVehicle());
+
 	}
 
 	@Test
-	public void test_Parking_A_Car() throws ClassNotFoundException, SQLException{
+	public void test_Parking_A_Car() throws Exception{
 		//TODO: check that a ticket is actualy saved in DB and Parking table is updated with availability
 		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 		parkingService.processIncomingVehicle();
@@ -106,11 +106,11 @@ public class ParkingDataBaseIT {
 		 */
 		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 		parkingService.processIncomingVehicle();
-		
+
 		Thread.sleep(500);
-		
+
 		parkingService.processExitingVehicle();
-		
+
 		Connection con = dataBaseTestConfig.getConnection();
 		Statement st = con.createStatement();
 		ResultSet rs = st.executeQuery("SELECT * FROM ticket");
@@ -125,7 +125,7 @@ public class ParkingDataBaseIT {
 		ResultSet rsp = st.executeQuery("SELECT * FROM parking");
 		assertTrue(rsp.next());
 		assertEquals(1, rsp.getInt("AVAILABLE"));
-		
+
 	}
 
 }
