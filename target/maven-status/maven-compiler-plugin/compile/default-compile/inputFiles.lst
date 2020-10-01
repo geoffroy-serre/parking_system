@@ -11,3 +11,4 @@
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/dao/TicketDAO.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/constants/Fare.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/constants/DBConstants.java
+/media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/customexceptions/RegIsAlreadyParkedException.java

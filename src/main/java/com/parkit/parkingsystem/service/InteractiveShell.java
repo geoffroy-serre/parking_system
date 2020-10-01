@@ -53,7 +53,8 @@ public class InteractiveShell {
 	}
 
 	private static void loadMenu(){
-		System.out.println("!! Free Parking for 30mn or less !!");
+		System.out.println("!!--- Free Parking for 30mn or less ---!!");
+		System.out.println("!!--- Returning users got 5% discount off ---!!\n");
 		System.out.println("Please select an option. Simply enter the number to choose an action");
 		System.out.println("1 New Vehicle Entering - Allocate Parking Space");
 		System.out.println("2 Vehicle Exiting - Generate Ticket Price");

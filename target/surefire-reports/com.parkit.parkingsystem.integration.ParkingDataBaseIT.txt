@@ -1,0 +1,34 @@
+-------------------------------------------------------------------------------
+Test set: com.parkit.parkingsystem.integration.ParkingDataBaseIT
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 2.879 s <<< FAILURE! - in com.parkit.parkingsystem.integration.ParkingDataBaseIT
+test_exit_update_current_ticket_not_previous  Time elapsed: 0.982 s  <<< ERROR!
+org.mockito.exceptions.misusing.UnnecessaryStubbingException: 
+
+Unnecessary stubbings detected.
+Clean & maintainable test code requires zero unnecessary code.
+Following stubbings are unnecessary (click to navigate to relevant line of code):
+  1. -> at com.parkit.parkingsystem.integration.ParkingDataBaseIT.setUpPerTest(ParkingDataBaseIT.java:57)
+  2. -> at com.parkit.parkingsystem.integration.ParkingDataBaseIT.setUpPerTest(ParkingDataBaseIT.java:58)
+Please remove unnecessary stubbings or use 'lenient' strictness. More info: javadoc for UnnecessaryStubbingException class.
+
+test_Registration_must_be_in_to_exit  Time elapsed: 0.066 s  <<< ERROR!
+org.mockito.exceptions.misusing.UnnecessaryStubbingException: 
+
+Unnecessary stubbings detected.
+Clean & maintainable test code requires zero unnecessary code.
+Following stubbings are unnecessary (click to navigate to relevant line of code):
+  1. -> at com.parkit.parkingsystem.integration.ParkingDataBaseIT.setUpPerTest(ParkingDataBaseIT.java:57)
+  2. -> at com.parkit.parkingsystem.integration.ParkingDataBaseIT.setUpPerTest(ParkingDataBaseIT.java:58)
+Please remove unnecessary stubbings or use 'lenient' strictness. More info: javadoc for UnnecessaryStubbingException class.
+
+test_reducted_price_for_recurrents_customers  Time elapsed: 0.072 s  <<< ERROR!
+org.mockito.exceptions.misusing.UnnecessaryStubbingException: 
+
+Unnecessary stubbings detected.
+Clean & maintainable test code requires zero unnecessary code.
+Following stubbings are unnecessary (click to navigate to relevant line of code):
+  1. -> at com.parkit.parkingsystem.integration.ParkingDataBaseIT.setUpPerTest(ParkingDataBaseIT.java:57)
+  2. -> at com.parkit.parkingsystem.integration.ParkingDataBaseIT.setUpPerTest(ParkingDataBaseIT.java:58)
+Please remove unnecessary stubbings or use 'lenient' strictness. More info: javadoc for UnnecessaryStubbingException class.
+

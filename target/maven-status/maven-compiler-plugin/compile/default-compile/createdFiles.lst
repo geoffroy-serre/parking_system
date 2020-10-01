@@ -7,6 +7,7 @@ com/parkit/parkingsystem/service/InteractiveShell.class
 com/parkit/parkingsystem/service/ParkingService.class
 com/parkit/parkingsystem/constants/ParkingType.class
 com/parkit/parkingsystem/util/InputReaderUtil.class
+com/parkit/parkingsystem/customexceptions/RegIsAlreadyParkedException.class
 com/parkit/parkingsystem/constants/DBConstants.class
 com/parkit/parkingsystem/dao/TicketDAO.class
 com/parkit/parkingsystem/constants/Fare.class

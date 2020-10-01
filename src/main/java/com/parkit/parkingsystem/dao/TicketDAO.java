@@ -77,7 +77,7 @@ public class TicketDAO {
 			else if (!rs.next()){
 				System.out.println("No vehicle to exit with this registration number\n");
 			}
-			
+
 			dataBaseConfig.closeResultSet(rs);
 			dataBaseConfig.closePreparedStatement(ps);
 		} catch (ClassNotFoundException | SQLException e) {
@@ -127,26 +127,31 @@ public class TicketDAO {
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public Boolean isKnownRegistrationInParking(String reg, Boolean vehicleIsOut) throws ClassNotFoundException, SQLException  {
+	public Boolean isKnownRegistrationInParking(String reg, Boolean vehicleIsOut)  {
 
 		Connection con = null;
+		Boolean result = null;
+		try {
+			if (!vehicleIsOut) {
+				con = dataBaseConfig.getConnection();
+				PreparedStatement ps = con.prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);
+				ps.setString(1, reg);
+				ResultSet rs = ps.executeQuery();
+				result = rs.next();	
+			}
 
-		if (!vehicleIsOut) {
-			con = dataBaseConfig.getConnection();
-			PreparedStatement ps = con.prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);
-			ps.setString(1, reg);
-			ResultSet rs = ps.executeQuery();
-			return rs.next();	
+			else {
+				con = dataBaseConfig.getConnection();
+				PreparedStatement ps = con.prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);
+				ps.setString(1,  reg);
+				ResultSet rs = ps.executeQuery();
+
+				result = rs.next();	
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			logger.error("Error to know if the registration is known",e);
 		}
-
-		else {
-			con = dataBaseConfig.getConnection();
-			PreparedStatement ps = con.prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);
-			ps.setString(1,  reg);
-			ResultSet rs = ps.executeQuery();
-
-			return rs.next();	
-		}
+		return result;
 
 
 	}
