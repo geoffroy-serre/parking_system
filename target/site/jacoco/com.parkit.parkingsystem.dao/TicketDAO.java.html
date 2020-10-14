@@ -5,155 +5,218 @@ import com.parkit.parkingsystem.constants.DBConstants;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-<span class="fc" id="L18">public class TicketDAO {</span>
+<span class="fc" id="L16">public class TicketDAO {</span>
 
-<span class="fc" id="L20">	private static final Logger logger = LogManager.getLogger(&quot;TicketDAO&quot;);</span>
+<span class="fc" id="L18">  private static final Logger logger = LogManager.getLogger(&quot;TicketDAO&quot;);</span>
 
-<span class="fc" id="L22">	public DataBaseConfig dataBaseConfig = new DataBaseConfig();</span>
+<span class="fc" id="L20">  public DataBaseConfig dataBaseConfig = new DataBaseConfig();</span>
 
-	/**
-	 * Save Ticket information in DB
-	 * @param ticket
-	 * @return
-	 */
-	public boolean saveTicket(Ticket ticket){
-<span class="nc" id="L30">		Connection con = null;</span>
-		try {
-<span class="nc" id="L32">			con = dataBaseConfig.getConnection();</span>
-<span class="nc" id="L33">			PreparedStatement ps = con.prepareStatement(DBConstants.SAVE_TICKET);</span>
-			//ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
-			//ps.setInt(1,ticket.getId());
-<span class="nc" id="L36">			ps.setInt(1,ticket.getParkingSpot().getId());</span>
-<span class="nc" id="L37">			ps.setString(2, ticket.getVehicleRegNumber());</span>
-<span class="nc" id="L38">			ps.setDouble(3, ticket.getPrice());</span>
-<span class="nc" id="L39">			Timestamp timeStamp = Timestamp.valueOf(ticket.getInTime());</span>
-<span class="nc" id="L40">			ps.setTimestamp(4, timeStamp);</span>
-<span class="nc bnc" id="L41" title="All 2 branches missed.">			ps.setTimestamp(5, (ticket.getOutTime() == null)?null: (timeStamp) );</span>
-<span class="nc" id="L42">			return ps.execute();</span>
-<span class="nc" id="L43">		}catch (Exception ex){</span>
-<span class="nc" id="L44">			logger.error(&quot;Error fetching next available slot&quot;,ex);</span>
-		}finally {
-<span class="nc" id="L46">			dataBaseConfig.closeConnection(con);</span>
+  /**
+   * Save Ticket information in DB.
+   * 
+   * @param ticket Ticket
+   * @return boolean saveticket
+   **/
+  public boolean saveTicket(Ticket ticket) {
+<span class="fc" id="L29">    Connection con = null;</span>
 
-		}
-<span class="nc" id="L49">		return false;</span>
-	}
+    try {
+<span class="fc" id="L32">      con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L33">      PreparedStatement ps = con.prepareStatement(DBConstants.SAVE_TICKET);</span>
+<span class="fc" id="L34">      ps.setInt(1, ticket.getParkingSpot().getId());</span>
+<span class="fc" id="L35">      ps.setString(2, ticket.getVehicleRegNumber());</span>
+<span class="fc" id="L36">      ps.setDouble(3, ticket.getPrice());</span>
+<span class="fc" id="L37">      Timestamp timeStamp = Timestamp.valueOf(ticket.getInTime());</span>
+<span class="fc" id="L38">      ps.setTimestamp(4, timeStamp);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">      ps.setTimestamp(5, (ticket.getOutTime() == null) ? null : (timeStamp));</span>
+<span class="fc" id="L40">      return ps.execute();</span>
 
-	/**
-	 * Retrieve ticket from DB for the given vehicleRegNumber
-	 * @param vehicleRegNumber
-	 * @return
-	 */
-	public Ticket getTicketToGetOut(String vehicleRegNumber) {
-<span class="nc" id="L58">		Connection con = null;</span>
-<span class="nc" id="L59">		Ticket ticket = null;</span>
+<span class="nc" id="L42">    } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L43">      logger.error(</span>
+          &quot;Error fetching next available slot. Class not Found in TicketDao.saveTicket()&quot;,
+          e);
 
-		try {
-<span class="nc" id="L62">			con = dataBaseConfig.getConnection();</span>
-<span class="nc" id="L63">			PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET_TO_GET_OUT);</span>
-			// PARKING_NUMBER,ID, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
-<span class="nc" id="L65">			ps.setString(1,vehicleRegNumber);</span>
-<span class="nc" id="L66">			ResultSet rs = ps.executeQuery();</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">			if(rs.next()){</span>
-<span class="nc" id="L68">				ticket = new Ticket();</span>
-<span class="nc" id="L69">				ParkingSpot parkingSpot = new ParkingSpot(rs.getInt(1), ParkingType.valueOf(rs.getString(6)),false);</span>
-<span class="nc" id="L70">				ticket.setParkingSpot(parkingSpot);</span>
-<span class="nc" id="L71">				ticket.setId(rs.getInt(2));</span>
-<span class="nc" id="L72">				ticket.setVehicleRegNumber(vehicleRegNumber);</span>
-<span class="nc" id="L73">				ticket.setPrice(rs.getDouble(3));</span>
-<span class="nc" id="L74">				ticket.setInTime(rs.getTimestamp(4).toLocalDateTime());</span>
-				//ticket.setOutTime(rs.getTimestamp(5).toLocalDateTime());
-<span class="nc" id="L76">			}</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">			else if (!rs.next()){</span>
-<span class="nc" id="L78">				System.out.println(&quot;No vehicle to exit with this registration number\n&quot;);</span>
-			}
+<span class="nc" id="L47">    } catch (SQLException e) {</span>
+<span class="nc" id="L48">      logger.error(</span>
+          &quot;Error fetching next available slot. SQL Exception in TicketDao.saveTicket()&quot;,
+          e);
+    } finally {
+<span class="fc" id="L52">      dataBaseConfig.closeConnection(con);</span>
+    }
 
-<span class="nc" id="L81">			dataBaseConfig.closeResultSet(rs);</span>
-<span class="nc" id="L82">			dataBaseConfig.closePreparedStatement(ps);</span>
-<span class="nc" id="L83">		} catch (ClassNotFoundException | SQLException e) {</span>
-<span class="nc" id="L84">			logger.error(&quot;Error fetching next available slot&quot;,e);</span>
+<span class="nc" id="L55">    return false;</span>
+  }
 
-		}
-		finally {
-<span class="nc" id="L88">			dataBaseConfig.closeConnection(con);</span>
+  /**
+   * Retrieve ticket from DB for the given vehicleRegNumber.
+   * 
+   * @param vehicleRegNumber String
+   * @return Ticket getTicketToGetOut
+   */
+  public Ticket getTicketToGetOut(String vehicleRegNumber) {
+<span class="fc" id="L65">    Connection con = null;</span>
+<span class="fc" id="L66">    Ticket ticket = null;</span>
 
-		}
-<span class="nc" id="L91">		return ticket;</span>
+    try {
+<span class="fc" id="L69">      con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L70">      PreparedStatement ps = con</span>
+<span class="fc" id="L71">          .prepareStatement(DBConstants.GET_TICKET_TO_GET_OUT);</span>
+      // PARKING_NUMBER,ID, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
+<span class="fc" id="L73">      ps.setString(1, vehicleRegNumber);</span>
+<span class="fc" id="L74">      ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">      if (rs.next()) {</span>
+<span class="fc" id="L76">        ticket = new Ticket();</span>
+<span class="fc" id="L77">        ParkingSpot parkingSpot = new ParkingSpot(rs.getInt(1),</span>
+<span class="fc" id="L78">            ParkingType.valueOf(rs.getString(6)), false);</span>
+<span class="fc" id="L79">        ticket.setParkingSpot(parkingSpot);</span>
+<span class="fc" id="L80">        ticket.setId(rs.getInt(2));</span>
+<span class="fc" id="L81">        ticket.setVehicleRegNumber(vehicleRegNumber);</span>
+<span class="fc" id="L82">        ticket.setPrice(rs.getDouble(3));</span>
+<span class="fc" id="L83">        ticket.setInTime(rs.getTimestamp(4).toLocalDateTime());</span>
+        // ticket.setOutTime(rs.getTimestamp(5).toLocalDateTime());
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">      } else if (!rs.next()) {</span>
+<span class="fc" id="L86">        System.out</span>
+<span class="fc" id="L87">            .println(&quot;No vehicle to exit with this registration number\n&quot;);</span>
+      }
 
-	}
+<span class="fc" id="L90">      dataBaseConfig.closeResultSet(rs);</span>
+<span class="fc" id="L91">      dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="nc" id="L92">    } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L93">      logger.error(</span>
+          &quot;Error fetching next available slot. Class not found in TicketDAO getTicketToGetOut()&quot;,
+          e);
 
-	/**
-	 * Update ticket in DB with calculated price and outTime
-	 * @param ticket
-	 * @return
-	 */
-	public boolean updateTicket(Ticket ticket) {
+<span class="nc" id="L97">    } catch (SQLException e) {</span>
+<span class="nc" id="L98">      logger.error(</span>
+          &quot;Error fetching next available slotin TicketDAO getTicketToGetOut()&quot;,
+          e);
+    } finally {
+<span class="fc" id="L102">      dataBaseConfig.closeConnection(con);</span>
 
-<span class="nc" id="L102">		Connection con = null;</span>
-		try {
-<span class="nc" id="L104">			con = dataBaseConfig.getConnection();</span>
-<span class="nc" id="L105">			PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_TICKET);</span>
-<span class="nc" id="L106">			ps.setDouble(1, ticket.getPrice());</span>
-			//was ticket.getintime()
-<span class="nc" id="L108">			Timestamp timeStamp = Timestamp.valueOf(ticket.getOutTime());</span>
-<span class="nc" id="L109">			ps.setTimestamp(2, timeStamp);</span>
-<span class="nc" id="L110">			ps.setInt(3,ticket.getId());</span>
-<span class="nc" id="L111">			ps.execute();</span>
-<span class="nc" id="L112">			return true;</span>
-<span class="nc" id="L113">		}catch (Exception ex){</span>
-<span class="nc" id="L114">			logger.error(&quot;Error saving ticket info&quot;,ex);</span>
-		}finally {
-<span class="nc" id="L116">			dataBaseConfig.closeConnection(con);</span>
-		}
-<span class="nc" id="L118">		return false;</span>
-	}
+    }
+<span class="fc" id="L105">    return ticket;</span>
 
-	/**
-	 * Look in DB if a Car already have a ticket with the choosen parameters
-	 * Return true if the given informations are found at least one time
-	 * @param reg
-	 * @param outTime
-	 * @return boolean
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
-	 */
-	public Boolean isKnownRegistrationInParking(String reg, Boolean vehicleIsOut)  {
+  }
 
-<span class="fc" id="L132">		Connection con = null;</span>
-<span class="fc" id="L133">		Boolean result = null;</span>
-		try {
-<span class="pc bpc" id="L135" title="1 of 2 branches missed.">			if (!vehicleIsOut) {</span>
-<span class="nc" id="L136">				con = dataBaseConfig.getConnection();</span>
-<span class="nc" id="L137">				PreparedStatement ps = con.prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);</span>
-<span class="nc" id="L138">				ps.setString(1, reg);</span>
-<span class="nc" id="L139">				ResultSet rs = ps.executeQuery();</span>
-<span class="nc" id="L140">				result = rs.next();	</span>
-<span class="nc" id="L141">			}</span>
+  /**
+   * Update ticket in DB with calculated price and outTime.
+   * 
+   * @param ticket Ticket
+   * @return boolean updateTicket
+   */
+  public boolean updateTicket(Ticket ticket) {
 
-			else {
-<span class="fc" id="L144">				con = dataBaseConfig.getConnection();</span>
-<span class="fc" id="L145">				PreparedStatement ps = con.prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);</span>
-<span class="fc" id="L146">				ps.setString(1,  reg);</span>
-<span class="fc" id="L147">				ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L117">    Connection con = null;</span>
 
-<span class="fc" id="L149">				result = rs.next();	</span>
-			}
-<span class="nc" id="L151">		} catch (ClassNotFoundException | SQLException e) {</span>
-<span class="nc" id="L152">			logger.error(&quot;Error to know if the registration is known&quot;,e);</span>
-<span class="fc" id="L153">		}</span>
-<span class="fc" id="L154">		return result;</span>
+    try {
+<span class="nc" id="L120">      con = dataBaseConfig.getConnection();</span>
+<span class="nc" id="L121">      PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_TICKET);</span>
+<span class="nc" id="L122">      ps.setDouble(1, ticket.getPrice());</span>
+      // was ticket.getintime()
+<span class="nc" id="L124">      Timestamp timeStamp = Timestamp.valueOf(ticket.getOutTime());</span>
+<span class="nc" id="L125">      ps.setTimestamp(2, timeStamp);</span>
+<span class="nc" id="L126">      ps.setInt(3, ticket.getId());</span>
+<span class="nc" id="L127">      ps.execute();</span>
+<span class="nc" id="L128">      return true;</span>
+<span class="nc" id="L129">    } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L130">      logger.error(</span>
+          &quot;Error saving ticket info. Class not found in TicketDao updateTicket()&quot;,
+          e);
+<span class="nc" id="L133">    } catch (SQLException e) {</span>
+<span class="nc" id="L134">      logger.error(</span>
+          &quot;Error saving ticket info. SQL Exception in TicketDAO updateTicket()&quot;,
+          e);
+    } finally {
+<span class="nc" id="L138">      dataBaseConfig.closeConnection(con);</span>
+    }
 
+<span class="nc" id="L141">    return false;</span>
+  }
 
-	}
+  /**
+   * Look in DB if a Car already have a ticket with the choosen parameters Set
+   * True if you look for the vehicle is out Set False if you look for the
+   * vehicle is still in Return true if the given informations are found at
+   * least one time.
+   * 
+   * @param reg String Vehicle Registration
+   * @return boolean isKnownRegistrationInParking
+   **/
+  public boolean isKnownRegistrationInParking(String reg) {
+
+<span class="fc" id="L155">    Connection con = null;</span>
+<span class="fc" id="L156">    boolean result = false;</span>
+
+    try {
+
+<span class="fc" id="L160">      con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L161">      PreparedStatement ps = con</span>
+<span class="fc" id="L162">          .prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);</span>
+<span class="fc" id="L163">      ps.setString(1, reg);</span>
+<span class="fc" id="L164">      ResultSet rs = ps.executeQuery();</span>
+<span class="fc" id="L165">      result = rs.next();</span>
+<span class="fc" id="L166">      dataBaseConfig.closeResultSet(rs);</span>
+<span class="fc" id="L167">      dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="nc" id="L168">    } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L169">      logger.error(</span>
+          &quot;Error to know if the registration is known.Class not found in TicketDAO.isKnownRegistrationInParking()&quot;,
+          e);
+<span class="nc" id="L172">    } catch (SQLException e) {</span>
+<span class="nc" id="L173">      logger.error(</span>
+          &quot;Error to know if the registration is known. SQL Exception in isKnownRegistrationInParking()&quot;,
+          e);
+    } finally {
+<span class="fc" id="L177">      dataBaseConfig.closeConnection(con);</span>
+
+    }
+<span class="fc" id="L180">    return result;</span>
+
+  }
+
+  /**
+   * Use to know if the registration had already been used in and out of the
+   * parking.
+   * 
+   * @param reg Vehicle Registration
+   * @return Boolean isRecurringRegistration
+   **/
+  public boolean isRecurringRegistration(String reg) {
+
+<span class="fc" id="L193">    Connection con = null;</span>
+<span class="fc" id="L194">    boolean result = false;</span>
+    try {
+
+<span class="fc" id="L197">      con = dataBaseConfig.getConnection();</span>
+<span class="fc" id="L198">      PreparedStatement ps = con</span>
+<span class="fc" id="L199">          .prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);</span>
+<span class="fc" id="L200">      ps.setString(1, reg);</span>
+<span class="fc" id="L201">      ResultSet rs = ps.executeQuery();</span>
+
+<span class="fc" id="L203">      result = rs.next();</span>
+<span class="fc" id="L204">      dataBaseConfig.closeResultSet(rs);</span>
+<span class="fc" id="L205">      dataBaseConfig.closePreparedStatement(ps);</span>
+<span class="nc" id="L206">    } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L207">      logger.error(</span>
+          &quot;Error knowing if the registration is known.Class not found in TicketDAO.isKnownRegistrationInParking()&quot;,
+          e);
+<span class="nc" id="L210">    } catch (SQLException e) {</span>
+<span class="nc" id="L211">      logger.error(</span>
+          &quot;Error to know if the registration is known. SQL Exception in isKnownRegistrationInParking()&quot;,
+          e);
+    } finally {
+<span class="fc" id="L215">      dataBaseConfig.closeConnection(con);</span>
+
+    }
+<span class="fc" id="L218">    return result;</span>
+
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

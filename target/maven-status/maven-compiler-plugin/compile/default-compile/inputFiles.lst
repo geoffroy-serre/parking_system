@@ -1,4 +1,6 @@
+/media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/customexceptions/RegistrationLengthException.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/service/FareCalculatorService.java
+/media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/customexceptions/ParkingIsFullException.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/config/DataBaseConfig.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/model/Ticket.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/util/InputReaderUtil.java
@@ -12,3 +14,4 @@
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/constants/Fare.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/constants/DBConstants.java
 /media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/customexceptions/RegIsAlreadyParkedException.java
+/media/heimdall/Stockage/0_DA_Java_OC/P4/work/src/main/java/com/parkit/parkingsystem/constants/TimeFormat.java

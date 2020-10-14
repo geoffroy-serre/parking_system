@@ -7,8 +7,8 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="all">
-            <AppenderRef ref="MyFile"/>
+        <Root level ="all">
+            <AppenderRef ref="MyFile" />
         </Root>
      
     </Loggers>

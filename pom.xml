@@ -31,6 +31,11 @@
             <version>8.0.17</version>
         </dependency>
         <dependency>
+    		<groupId>org.apache.maven.plugins</groupId>
+    		<artifactId>maven-site-plugin</artifactId>
+   			 <version>3.9.1</version>
+		</dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.3.2</version>
@@ -59,10 +64,43 @@
             <artifactId>maven-assembly-plugin</artifactId>
             <version>3.0.0</version>
         </dependency>
+        <dependency>
+  			<groupId>org.assertj</groupId>
+  			<artifactId>assertj-core</artifactId>
+  			<!-- use 2.9.1 for Java 7 projects -->
+  			<version>3.17.2</version>
+  			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs -->
+		<dependency>
+   			 <groupId>com.github.spotbugs</groupId>
+   			 <artifactId>spotbugs</artifactId>
+   			 <version>4.1.3</version>
+    			<type>pom</type>
+		</dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+        <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.9.1</version>
+</plugin>
+        <plugin>
+  			<groupId>com.github.spotbugs</groupId>
+  			<artifactId>spotbugs-maven-plugin</artifactId>
+  			<version>4.0.4</version>
+ 			<dependencies>
+    <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+   			 <dependency>
+      			<groupId>com.github.spotbugs</groupId>
+      			<artifactId>spotbugs</artifactId>
+      			<version>4.1.3</version>
+    			</dependency>
+  			</dependencies>
+			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -140,7 +178,22 @@
                     </execution>
                 </executions>
             </plugin>
+          
         </plugins>
     </build>
-
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.1.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.21.0</version>
+			</plugin>
+		</plugins>
+	</reporting>
+	
 </project>

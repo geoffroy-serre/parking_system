@@ -1,14 +1,17 @@
 package com.parkit.parkingsystem.customexceptions;
 
-public class RegIsAlreadyParkedException extends RuntimeException {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3076680978320246995L;
+public class RegIsAlreadyParkedException extends Exception {
 
-	public RegIsAlreadyParkedException(String errorMessage) {
-		super(errorMessage);
-	}
+  private static final long serialVersionUID = 3076680978320246995L;
+
+  /**
+   * Throwed ifRegistration is already in parking.
+   * 
+   * @param errorMessage
+   **/
+
+  public RegIsAlreadyParkedException(String errorMessage) {
+    super(errorMessage);
+  }
 
 }

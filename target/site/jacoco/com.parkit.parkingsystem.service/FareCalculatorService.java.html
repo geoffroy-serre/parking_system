@@ -1,67 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FareCalculatorService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parking-system</a> &gt; <a href="index.source.html" class="el_package">com.parkit.parkingsystem.service</a> &gt; <span class="el_source">FareCalculatorService.java</span></div><h1>FareCalculatorService.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.service;
 
-import java.time.Duration;
 import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.model.Ticket;
+import java.time.Duration;
 
 <span class="fc" id="L8">public class FareCalculatorService {</span>
 
-	/**
-	 * Price is calculated in minutes then divided by 60 to know if there is a hour more to pay
-	 * For example for 1.5 hours fare are for 2hours.
-	 * Free parking for 30mn and less.
-	 * @param ticket
-	 */
-	public void calculateFare(Ticket ticket){
+  /**
+   * Price is calculated in minutes then divided by 60 to know if there is a
+   * hour more to pay For example for 1.5 hours fare are for 2hours. Recurring
+   * user got 5% discount Free parking for 30mn and less. If it's so, no fare
+   * are calculated the ticket keep its default price (0.0)
+   * 
+   * @param ticket Ticket
+   **/
+  public void calculateFare(Ticket ticket) {
 
-<span class="fc" id="L18">		TicketDAO tickett = new TicketDAO();</span>
+<span class="fc" id="L20">    TicketDAO ticketDAO = new TicketDAO();</span>
 
-<span class="pc bpc" id="L20" title="1 of 4 branches missed.">		if( (ticket.getOutTime() == null) || (ticket.getOutTime().isBefore(ticket.getInTime()))) {</span>
-<span class="fc" id="L21">			throw new IllegalArgumentException(&quot;Out time provided is incorrect:&quot;+ticket.getOutTime().toString());</span>
-		}
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">    if ((ticket.getOutTime() == null)</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        || (ticket.getOutTime().isBefore(ticket.getInTime()))) {</span>
+<span class="fc" id="L24">      throw new IllegalArgumentException(&quot;Out time provided is incorrect:&quot;</span>
+<span class="fc" id="L25">                                         + ticket.getOutTime().toString());</span>
+    }
 
+<span class="fc" id="L28">    double parkedVehicleDuration = Duration</span>
+<span class="fc" id="L29">        .between(ticket.getInTime(), ticket.getOutTime()).toMinutes() / 60.0;</span>
 
-<span class="fc" id="L25">		double parkedVehicleDuration  = Duration.between(ticket.getInTime(), ticket.getOutTime()).toMinutes()/60.0;</span>
+    /*
+     * 5% Reduction if the vehicle has already use the parking ( in AND out).
+     * The price is multiplied by 0.95 to get the discounted price
+     */
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (parkedVehicleDuration &gt; Fare.FREE_HALF_HOUR</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        &amp;&amp; ticketDAO.isRecurringRegistration(ticket.getVehicleRegNumber())) {</span>
+<span class="nc" id="L37">      parkedVehicleDuration = Math.ceil(parkedVehicleDuration);</span>
+<span class="nc" id="L38">      System.out.println(</span>
+          &quot;Welcome back. As a returning user you have 5% discount off !!&quot;);
+<span class="nc bnc" id="L40" title="All 3 branches missed.">      switch (ticket.getParkingSpot().getParkingType()) {</span>
+        case CAR: {
+<span class="nc" id="L42">          ticket.setPrice(</span>
+              (parkedVehicleDuration * Fare.CAR_RATE_PER_HOUR) * 0.95);
+<span class="nc" id="L44">          break;</span>
+        }
+        case BIKE: {
+<span class="nc" id="L47">          ticket.setPrice(</span>
+              (parkedVehicleDuration * Fare.BIKE_RATE_PER_HOUR) * 0.95);
+<span class="nc" id="L49">          break;</span>
+        }
+        default:
+<span class="nc" id="L52">          throw new IllegalArgumentException(&quot;Unkown Parking Type&quot;);</span>
+      }
+      /*
+       * If the vehicle didn't parked before ( in AND out) regular fare are
+       * applied
+       */
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    } else if (parkedVehicleDuration &gt; Fare.FREE_HALF_HOUR) {</span>
 
-		/*
-		 * 5% Reduction if the vehicle has already use the parking ( in and out). The price is multiplied by 0.95
-		 * to get the reducted price
-		 */
-<span class="pc bpc" id="L31" title="1 of 4 branches missed.">		if (parkedVehicleDuration &gt; Fare.FREE_HALF_HOUR &amp;&amp; tickett.isKnownRegistrationInParking(ticket.getVehicleRegNumber(), true) ) {</span>
-<span class="nc" id="L32">			parkedVehicleDuration = Math.ceil(parkedVehicleDuration);</span>
-<span class="nc bnc" id="L33" title="All 3 branches missed.">			switch (ticket.getParkingSpot().getParkingType()){</span>
-			case CAR: {
-<span class="nc" id="L35">				ticket.setPrice((parkedVehicleDuration * Fare.CAR_RATE_PER_HOUR)*0.95);</span>
-<span class="nc" id="L36">				break;</span>
-			}
-			case BIKE: {
-<span class="nc" id="L39">				ticket.setPrice((parkedVehicleDuration * Fare.BIKE_RATE_PER_HOUR)*0.95);</span>
-<span class="nc" id="L40">				break;</span>
-			}
-<span class="nc" id="L42">			default: throw new IllegalArgumentException(&quot;Unkown Parking Type&quot;);</span>
-			}
-		}
+<span class="fc" id="L60">      parkedVehicleDuration = Math.ceil(parkedVehicleDuration);</span>
 
-		/*
-		 * If the vehicle didn't parked before ( in and out) we apply the regular fare
-		 */
-<span class="fc bfc" id="L49" title="All 2 branches covered.">		else if (parkedVehicleDuration &gt; Fare.FREE_HALF_HOUR) {</span>
-
-<span class="fc" id="L51">			parkedVehicleDuration = Math.ceil(parkedVehicleDuration);</span>
-
-<span class="pc bpc" id="L53" title="1 of 3 branches missed.">			switch (ticket.getParkingSpot().getParkingType()){</span>
-			case CAR: {
-<span class="fc" id="L55">				ticket.setPrice(parkedVehicleDuration * Fare.CAR_RATE_PER_HOUR);</span>
-<span class="fc" id="L56">				break;</span>
-			}
-			case BIKE: {
-<span class="fc" id="L59">				ticket.setPrice(parkedVehicleDuration * Fare.BIKE_RATE_PER_HOUR);</span>
-<span class="fc" id="L60">				break;</span>
-			}
-<span class="nc" id="L62">			default: throw new IllegalArgumentException(&quot;Unkown Parking Type&quot;);</span>
-			}
-		}
-<span class="fc" id="L65">	}</span>
+<span class="pc bpc" id="L62" title="1 of 3 branches missed.">      switch (ticket.getParkingSpot().getParkingType()) {</span>
+        case CAR: {
+<span class="fc" id="L64">          ticket.setPrice(parkedVehicleDuration * Fare.CAR_RATE_PER_HOUR);</span>
+<span class="fc" id="L65">          break;</span>
+        }
+        case BIKE: {
+<span class="fc" id="L68">          ticket.setPrice(parkedVehicleDuration * Fare.BIKE_RATE_PER_HOUR);</span>
+<span class="fc" id="L69">          break;</span>
+        }
+        default:
+<span class="nc" id="L72">          throw new IllegalArgumentException(&quot;Unkown Parking Type&quot;);</span>
+      }
+    }
+<span class="fc" id="L75">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
