@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.parkit.parkingsystem.constants.ParkingType;
-import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.dao.TicketDao;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
 import com.parkit.parkingsystem.integration.service.DataBasePrepareService;
 import com.parkit.parkingsystem.model.ParkingSpot;
@@ -22,11 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class TicketDAOTest {
+public class TicketDaoTest {
 
   private static DataBaseTestConfig dataBaseConfig = new DataBaseTestConfig();
   private static DataBasePrepareService dataBasePrepareService = new DataBasePrepareService();
-  private static TicketDAO ticketDAO;
+  private static TicketDao ticketDAO;
   private static Ticket ticket;
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
@@ -35,7 +35,7 @@ public class TicketDAOTest {
 
   @BeforeEach
   private void setUp() {
-    ticketDAO = new TicketDAO();
+    ticketDAO = new TicketDao();
     ticketDAO.dataBaseConfig = dataBaseConfig;
     dataBasePrepareService.clearDataBaseEntries();
     ticket = new Ticket();

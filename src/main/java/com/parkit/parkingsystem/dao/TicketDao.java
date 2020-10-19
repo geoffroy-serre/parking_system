@@ -1,7 +1,7 @@
 package com.parkit.parkingsystem.dao;
 
 import com.parkit.parkingsystem.config.DataBaseConfig;
-import com.parkit.parkingsystem.constants.DBConstants;
+import com.parkit.parkingsystem.constants.DbConstants;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class TicketDAO {
+public class TicketDao {
 
   private static final Logger logger = LogManager.getLogger("TicketDAO");
 
@@ -30,14 +30,19 @@ public class TicketDAO {
 
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con.prepareStatement(DBConstants.SAVE_TICKET);
+      PreparedStatement ps = con.prepareStatement(DbConstants.SAVE_TICKET);
       ps.setInt(1, ticket.getParkingSpot().getId());
       ps.setString(2, ticket.getVehicleRegNumber());
       ps.setDouble(3, ticket.getPrice());
       Timestamp timeStamp = Timestamp.valueOf(ticket.getInTime());
       ps.setTimestamp(4, timeStamp);
       ps.setTimestamp(5, (ticket.getOutTime() == null) ? null : (timeStamp));
-      return ps.execute();
+      boolean result = ps.execute();
+      
+      dataBaseConfig.closePreparedStatement(ps);
+     
+      return result;
+      
 
     } catch (ClassNotFoundException e) {
       logger.error(
@@ -68,7 +73,7 @@ public class TicketDAO {
     try {
       con = dataBaseConfig.getConnection();
       PreparedStatement ps = con
-          .prepareStatement(DBConstants.GET_TICKET_TO_GET_OUT);
+          .prepareStatement(DbConstants.GET_TICKET_TO_GET_OUT);
       ps.setString(1, vehicleRegNumber);
       ResultSet rs = ps.executeQuery();
       if (rs.next()) {
@@ -119,13 +124,14 @@ public class TicketDAO {
 
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_TICKET);
+      PreparedStatement ps = con.prepareStatement(DbConstants.UPDATE_TICKET);
       ps.setDouble(1, ticket.getPrice());
       // was ticket.getintime()
       Timestamp timeStamp = Timestamp.valueOf(ticket.getOutTime());
       ps.setTimestamp(2, timeStamp);
       ps.setInt(3, ticket.getId());
       ps.execute();
+      dataBaseConfig.closePreparedStatement(ps);
       return true;
     } catch (ClassNotFoundException e) {
       logger.error(
@@ -160,7 +166,7 @@ public class TicketDAO {
 
       con = dataBaseConfig.getConnection();
       PreparedStatement ps = con
-          .prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);
+          .prepareStatement(DbConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);
       ps.setString(1, reg);
       ResultSet rs = ps.executeQuery();
       result = rs.next();
@@ -197,7 +203,7 @@ public class TicketDAO {
 
       con = dataBaseConfig.getConnection();
       PreparedStatement ps = con
-          .prepareStatement(DBConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);
+          .prepareStatement(DbConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);
       ps.setString(1, reg);
       ResultSet rs = ps.executeQuery();
 

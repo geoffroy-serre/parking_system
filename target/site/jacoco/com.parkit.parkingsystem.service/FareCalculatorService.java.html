@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FareCalculatorService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parking-system</a> &gt; <a href="index.source.html" class="el_package">com.parkit.parkingsystem.service</a> &gt; <span class="el_source">FareCalculatorService.java</span></div><h1>FareCalculatorService.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.service;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FareCalculatorService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">parking-system</a> &gt; <a href="index.source.html" class="el_package">com.parkit.parkingsystem.service</a> &gt; <span class="el_source">FareCalculatorService.java</span></div><h1>FareCalculatorService.java</h1><pre class="source lang-java linenums">package com.parkit.parkingsystem.service;
 
 import com.parkit.parkingsystem.constants.Fare;
-import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.dao.TicketDao;
 import com.parkit.parkingsystem.model.Ticket;
 import java.time.Duration;
 
@@ -17,7 +17,7 @@ import java.time.Duration;
    **/
   public void calculateFare(Ticket ticket) {
 
-<span class="fc" id="L20">    TicketDAO ticketDAO = new TicketDAO();</span>
+<span class="fc" id="L20">    TicketDao ticketDao = new TicketDao();</span>
 
 <span class="pc bpc" id="L22" title="1 of 2 branches missed.">    if ((ticket.getOutTime() == null)</span>
 <span class="fc bfc" id="L23" title="All 2 branches covered.">        || (ticket.getOutTime().isBefore(ticket.getInTime()))) {</span>
@@ -33,7 +33,7 @@ import java.time.Duration;
      * The price is multiplied by 0.95 to get the discounted price
      */
 <span class="fc bfc" id="L35" title="All 2 branches covered.">    if (parkedVehicleDuration &gt; Fare.FREE_HALF_HOUR</span>
-<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        &amp;&amp; ticketDAO.isRecurringRegistration(ticket.getVehicleRegNumber())) {</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        &amp;&amp; ticketDao.isRecurringRegistration(ticket.getVehicleRegNumber())) {</span>
 <span class="nc" id="L37">      parkedVehicleDuration = Math.ceil(parkedVehicleDuration);</span>
 <span class="nc" id="L38">      System.out.println(</span>
           &quot;Welcome back. As a returning user you have 5% discount off !!&quot;);

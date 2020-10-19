@@ -3,8 +3,8 @@ package com.parkit.parkingsystem.service;
 import com.parkit.parkingsystem.customexceptions.ParkingIsFullException;
 import com.parkit.parkingsystem.customexceptions.RegIsAlreadyParkedException;
 import com.parkit.parkingsystem.customexceptions.RegistrationLengthException;
-import com.parkit.parkingsystem.dao.ParkingSpotDAO;
-import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.dao.ParkingSpotDao;
+import com.parkit.parkingsystem.dao.TicketDao;
 import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,10 +23,10 @@ public class InteractiveShell {
 
     boolean continueApp = true;
     InputReaderUtil inputReaderUtil = new InputReaderUtil();
-    ParkingSpotDAO parkingSpotDAO = new ParkingSpotDAO();
-    TicketDAO ticketDAO = new TicketDAO();
+    ParkingSpotDao parkingSpotDao = new ParkingSpotDao();
+    TicketDao ticketDao = new TicketDao();
     ParkingService parkingService = new ParkingService(inputReaderUtil,
-        parkingSpotDAO, ticketDAO);
+        parkingSpotDao, ticketDao);
 
     while (continueApp) {
       loadMenu();

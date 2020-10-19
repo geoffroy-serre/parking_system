@@ -3,7 +3,6 @@ package com.parkit.parkingsystem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
@@ -14,8 +13,8 @@ import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.customexceptions.ParkingIsFullException;
 import com.parkit.parkingsystem.customexceptions.RegIsAlreadyParkedException;
 import com.parkit.parkingsystem.customexceptions.RegistrationLengthException;
-import com.parkit.parkingsystem.dao.ParkingSpotDAO;
-import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.dao.ParkingSpotDao;
+import com.parkit.parkingsystem.dao.TicketDao;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.ParkingService;
@@ -36,19 +35,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ParkingServiceTest {
 
-  private static ParkingService parkingService;
   private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
   @Mock
   private static InputReaderUtil inputReaderUtil;
 
   @Mock
-  private static ParkingSpotDAO parkingSpotDAO;
+  private static ParkingSpotDao parkingSpotDAO;
 
   @Mock
   private static ParkingSpot parkingSpot;
   @Mock
-  private static TicketDAO ticketDAO;
+  private static TicketDao ticketDAO;
 
   @BeforeEach
   private void setUpPerTest() {
@@ -61,33 +59,37 @@ class ParkingServiceTest {
   }
 
   @Test
-  public void processingIncomingVehicleTest()
+  public void processing_Incoming_Vehicle_Reccurring_Test()
       throws RegIsAlreadyParkedException, InterruptedException,
       RegistrationLengthException, ParkingIsFullException {
     ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     ParkingService parkingService = new ParkingService(inputReaderUtil,
         parkingSpotDAO, ticketDAO);
+    LocalDateTime inTime = LocalDateTime.now();
     ArgumentCaptor<Ticket> ticketArgCapt = ArgumentCaptor
         .forClass(Ticket.class);
     Ticket ticket = new Ticket();
-    LocalDateTime inTime = LocalDateTime.now();
+
     ticket.setInTime(inTime);
     ticket.setParkingSpot(parkingSpot);
     ticket.setVehicleRegNumber("IN_VEHICLE");
     ticket.setOutTime(null);
 
     when(parkingSpotDAO.updateParking(parkingSpot)).thenReturn(true);
+    when(parkingSpotDAO.isThereAvailableSlot(ParkingType.CAR)).thenReturn(true);
     when(inputReaderUtil.readSelection()).thenReturn(1);
     when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
-    when(inputReaderUtil.readVehicleRegistrationNumber())
-        .thenReturn("IN_VEHICLE");
+    when(inputReaderUtil.controlVehicleRegistrationNumber(
+        inputReaderUtil.getInputForVehicleRegNumber()))
+            .thenReturn("IN_VEHICLE");
 
     parkingService.processIncomingVehicle();
 
     verify(parkingSpotDAO, times(1)).updateParking(parkingSpot);
     verify(parkingSpotDAO, times(1)).getNextAvailableSlot(ParkingType.CAR);
     verify(ticketDAO, times(1)).isKnownRegistrationInParking(
-        inputReaderUtil.readVehicleRegistrationNumber());
+        inputReaderUtil.controlVehicleRegistrationNumber(
+            inputReaderUtil.getInputForVehicleRegNumber()));
     verify(ticketDAO, times(1)).saveTicket(ticketArgCapt.capture());
     Assertions.assertThat(ticketArgCapt.getValue().getPrice())
         .isEqualTo(ticket.getPrice());
@@ -95,19 +97,62 @@ class ParkingServiceTest {
         .isEqualTo(ticket.getVehicleRegNumber());
     Assertions.assertThat(ticketArgCapt.getValue().getParkingSpot())
         .isEqualTo(ticket.getParkingSpot());
-    Assertions.assertThat(ticketArgCapt.getValue().getInTime())
-        .isAfter(ticket.getInTime());
+    Assertions.assertThat(inTime).isEqualTo(ticket.getInTime());
     Assertions.assertThat(ticketArgCapt.getValue().getOutTime())
         .isEqualTo(ticket.getOutTime());
   }
 
   @Test
-  void processExitingVehicleTest()
+  public void processing_Incoming_Vehicle_Test()
+      throws RegIsAlreadyParkedException, InterruptedException,
+      RegistrationLengthException, ParkingIsFullException {
+    ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
+    ParkingService parkingService = new ParkingService(inputReaderUtil,
+        parkingSpotDAO, ticketDAO);
+    LocalDateTime inTime = LocalDateTime.now();
+    ArgumentCaptor<Ticket> ticketArgCapt = ArgumentCaptor
+        .forClass(Ticket.class);
+    Ticket ticket = new Ticket();
+
+    ticket.setInTime(inTime);
+    ticket.setParkingSpot(parkingSpot);
+    ticket.setVehicleRegNumber("IN_VEHICLE");
+    ticket.setOutTime(null);
+
+    when(parkingSpotDAO.updateParking(parkingSpot)).thenReturn(true);
+    when(parkingSpotDAO.isThereAvailableSlot(ParkingType.CAR)).thenReturn(true);
+    when(inputReaderUtil.readSelection()).thenReturn(1);
+    when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
+    when(inputReaderUtil.controlVehicleRegistrationNumber(
+        inputReaderUtil.getInputForVehicleRegNumber()))
+            .thenReturn("IN_VEHICLE");
+
+    parkingService.processIncomingVehicle();
+
+    verify(parkingSpotDAO, times(1)).updateParking(parkingSpot);
+    verify(parkingSpotDAO, times(1)).getNextAvailableSlot(ParkingType.CAR);
+    verify(ticketDAO, times(1)).isKnownRegistrationInParking(
+        inputReaderUtil.controlVehicleRegistrationNumber(
+            inputReaderUtil.getInputForVehicleRegNumber()));
+    verify(ticketDAO, times(1)).saveTicket(ticketArgCapt.capture());
+    Assertions.assertThat(ticketArgCapt.getValue().getPrice())
+        .isEqualTo(ticket.getPrice());
+    Assertions.assertThat(ticketArgCapt.getValue().getVehicleRegNumber())
+        .isEqualTo(ticket.getVehicleRegNumber());
+    Assertions.assertThat(ticketArgCapt.getValue().getParkingSpot())
+        .isEqualTo(ticket.getParkingSpot());
+    Assertions.assertThat(inTime).isEqualTo(ticket.getInTime());
+    Assertions.assertThat(ticketArgCapt.getValue().getOutTime())
+        .isEqualTo(ticket.getOutTime());
+  }
+
+  @Test
+  void process_Exiting_Vehicle_Test()
       throws RegIsAlreadyParkedException, InterruptedException,
       RegistrationLengthException, ParkingIsFullException {
     ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     Ticket ticket = new Ticket();
-    LocalDateTime inTime = LocalDateTime.now();
+    LocalDateTime inTime = LocalDateTime.of(2020, 10, 02, 11, 11);
     ticket.setInTime(inTime);
     ticket.setParkingSpot(parkingSpot);
     ticket.setVehicleRegNumber("OUT_VEHICL");
@@ -115,12 +160,14 @@ class ParkingServiceTest {
     ticket.setPrice(0.0);
 
     when(parkingSpotDAO.updateParking(parkingSpot)).thenReturn(true);
+    when(parkingSpotDAO.isThereAvailableSlot(ParkingType.CAR)).thenReturn(true);
     when(inputReaderUtil.readSelection()).thenReturn(1);
     when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
     when(ticketDAO.getTicketToGetOut(anyString())).thenReturn(ticket);
     when(ticketDAO.updateTicket(ticket)).thenReturn(true);
-    when(inputReaderUtil.readVehicleRegistrationNumber())
-        .thenReturn("OUT_VEHICL");
+    when(inputReaderUtil.controlVehicleRegistrationNumber(
+        inputReaderUtil.getInputForVehicleRegNumber()))
+            .thenReturn("OUT_VEHICL");
 
     ParkingService parkingService = new ParkingService(inputReaderUtil,
         parkingSpotDAO, ticketDAO);
@@ -140,17 +187,7 @@ class ParkingServiceTest {
   }
 
   @Test
-  void parkingFullExceptionTest() throws RegIsAlreadyParkedException,
-      RegistrationLengthException, ParkingIsFullException {
-    when(inputReaderUtil.readSelection()).thenReturn(1);
-    when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(0);
-    assertThrows(ParkingIsFullException.class,
-        () -> parkingService.getNextParkingNumberIfAvailable());
-
-  }
-
-  @Test
-  void processExitingVehiclewithBillTest()
+  void process_Exiting_Vehicle_with_Price_Test()
       throws RegIsAlreadyParkedException, InterruptedException,
       RegistrationLengthException, ParkingIsFullException {
     ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
@@ -163,12 +200,14 @@ class ParkingServiceTest {
     ticket.setPrice(0.0);
 
     when(parkingSpotDAO.updateParking(parkingSpot)).thenReturn(true);
+    when(parkingSpotDAO.isThereAvailableSlot(ParkingType.CAR)).thenReturn(true);
     when(inputReaderUtil.readSelection()).thenReturn(1);
     when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
     when(ticketDAO.getTicketToGetOut(anyString())).thenReturn(ticket);
     when(ticketDAO.updateTicket(ticket)).thenReturn(true);
-    when(inputReaderUtil.readVehicleRegistrationNumber())
-        .thenReturn("OUT_VEHICL");
+    when(inputReaderUtil.controlVehicleRegistrationNumber(
+        inputReaderUtil.getInputForVehicleRegNumber()))
+            .thenReturn("OUT_VEHICL");
 
     ParkingService parkingService = new ParkingService(inputReaderUtil,
         parkingSpotDAO, ticketDAO);
@@ -188,19 +227,20 @@ class ParkingServiceTest {
   }
 
   @Test
-  void processExitingVehicleTestASecondTime()
+  void process_Exiting_Vehicle_Test_A_Second_Time()
       throws RegistrationLengthException {
     ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     ParkingService parkingService = new ParkingService(inputReaderUtil,
         parkingSpotDAO, ticketDAO);
     Ticket ticket = new Ticket();
-    ticket.setInTime(LocalDateTime.now());
+    ticket.setInTime(LocalDateTime.of(2020, 10, 02, 11, 11));
     ticket.setParkingSpot(parkingSpot);
     ticket.setVehicleRegNumber("OUT2");
     ticket.setOutTime(null);
     when(ticketDAO.getTicketToGetOut(anyString())).thenReturn(ticket);
     when(ticketDAO.updateTicket(ticket)).thenReturn(true);
-    when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("OUT2");
+    when(inputReaderUtil.controlVehicleRegistrationNumber(
+        inputReaderUtil.getInputForVehicleRegNumber())).thenReturn("OUT2");
     parkingService.processExitingVehicle();
     verify(parkingSpotDAO, Mockito.times(1))
         .updateParking(any(ParkingSpot.class));

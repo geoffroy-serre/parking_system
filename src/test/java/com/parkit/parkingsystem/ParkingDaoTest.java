@@ -1,13 +1,14 @@
 package com.parkit.parkingsystem;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.customexceptions.ParkingIsFullException;
-import com.parkit.parkingsystem.dao.ParkingSpotDAO;
+import com.parkit.parkingsystem.dao.ParkingSpotDao;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
 import com.parkit.parkingsystem.integration.service.DataBasePrepareService;
 import com.parkit.parkingsystem.model.ParkingSpot;
@@ -21,9 +22,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ParkingDAOTest {
+public class ParkingDaoTest {
 
-  private static ParkingSpotDAO parkingSpotDAO;
+  private static ParkingSpotDao parkingSpotDAO;
   private static ParkingSpot parkingSpot;
   private static DataBaseTestConfig dataBaseConfig = new DataBaseTestConfig();
   private static DataBasePrepareService dataBasePrepareService = new DataBasePrepareService();
@@ -33,7 +34,7 @@ public class ParkingDAOTest {
 
   @BeforeEach
   private void setUp() {
-    parkingSpotDAO = new ParkingSpotDAO();
+    parkingSpotDAO = new ParkingSpotDao();
     parkingSpotDAO.dataBaseConfig = dataBaseConfig;
     dataBasePrepareService.clearDataBaseEntries();
   }
@@ -44,14 +45,14 @@ public class ParkingDAOTest {
   }
 
   @Test
-  public void shouldReturnParkingSpotNumberOne()
+  public void should_Return_ParkingSpot_Number_One()
       throws ParkingIsFullException, InterruptedException {
     int result = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
     assertEquals(1, result);
   }
 
   @Test
-  public void updateParkingShouldReturnParkingSpotNumber3After2VehiculeIncoming()
+  public void updateParking_Should_Return_ParkingSpotNumber3_After_2Vehicules_Incoming()
       throws ParkingIsFullException, InterruptedException {
     parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     ParkingSpot parkingSpot2 = new ParkingSpot(2, ParkingType.CAR, false);
@@ -65,7 +66,7 @@ public class ParkingDAOTest {
   }
 
   @Test
-  public void shouldReturnParkingFull() throws ParkingIsFullException {
+  public void should_Return_Parking_Full() throws ParkingIsFullException {
     parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     ParkingSpot parkingSpot2 = new ParkingSpot(2, ParkingType.CAR, false);
     ParkingSpot parkingSpot3 = new ParkingSpot(3, ParkingType.CAR, false);
@@ -74,11 +75,12 @@ public class ParkingDAOTest {
     parkingSpotDAO.updateParking(parkingSpot3);
 
     assertEquals(0, parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR));
-    // assertEquals(0, result);
+    assertFalse(parkingSpotDAO.isThereAvailableSlot(ParkingType.CAR));
+
   }
 
   @Test
-  public void updateParkingShouldReturnParkingSpotNumber1After2VehiculeIncomingAndFirstExiting()
+  public void update_Parking_Should_Return_Parking_Spot_Number_1_After_2Vehicule_Incoming_And_First_Exiting()
       throws ParkingIsFullException, InterruptedException {
     parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     ParkingSpot parkingSpot2 = new ParkingSpot(2, ParkingType.CAR, false);
@@ -93,18 +95,18 @@ public class ParkingDAOTest {
   }
 
   @Test
-  public void updateParkingShouldReturnException_When_DB_ConnectionFail()
+  public void update_Parking_Should_Return_Exception_When_DB_ConnectionFail()
       throws ClassNotFoundException, SQLException, IOException,
       ParkingIsFullException, InterruptedException {
 
-    ParkingSpotDAO parkingSpotDAO3 = new ParkingSpotDAO();
-    parkingSpotDAO3.dataBaseConfig = dataBaseConfigMock;
+    ParkingSpotDao parkingSpotDao3 = new ParkingSpotDao();
+    parkingSpotDao3.dataBaseConfig = dataBaseConfigMock;
     ParkingSpot parkingSpot2 = new ParkingSpot(1, ParkingType.CAR, false);
     when(dataBaseConfigMock.getConnection())
         .thenThrow(new SQLException("Error occurred"));
 
-    parkingSpotDAO3.updateParking(parkingSpot2);
-    parkingSpotDAO3.getNextAvailableSlot(ParkingType.CAR);
+    parkingSpotDao3.updateParking(parkingSpot2);
+    parkingSpotDao3.getNextAvailableSlot(ParkingType.CAR);
     verify(dataBaseConfigMock, times(2)).getConnection();
   }
 

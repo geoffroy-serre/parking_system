@@ -1,7 +1,8 @@
+com/parkit/parkingsystem/TicketDaoTest.class
 com/parkit/parkingsystem/integration/service/DataBasePrepareService.class
+com/parkit/parkingsystem/InputReaderUtilTest.class
 com/parkit/parkingsystem/FareCalculatorServiceTest.class
 com/parkit/parkingsystem/ParkingServiceTest.class
-com/parkit/parkingsystem/ParkingDAOTest.class
+com/parkit/parkingsystem/ParkingDaoTest.class
 com/parkit/parkingsystem/integration/ParkingDataBaseIT.class
-com/parkit/parkingsystem/TicketDAOTest.class
 com/parkit/parkingsystem/integration/config/DataBaseTestConfig.class

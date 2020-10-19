@@ -1,7 +1,7 @@
 package com.parkit.parkingsystem.service;
 
 import com.parkit.parkingsystem.constants.Fare;
-import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.dao.TicketDao;
 import com.parkit.parkingsystem.model.Ticket;
 import java.time.Duration;
 
@@ -17,7 +17,7 @@ public class FareCalculatorService {
    **/
   public void calculateFare(Ticket ticket) {
 
-    TicketDAO ticketDAO = new TicketDAO();
+    TicketDao ticketDao = new TicketDao();
 
     if ((ticket.getOutTime() == null)
         || (ticket.getOutTime().isBefore(ticket.getInTime()))) {
@@ -33,7 +33,7 @@ public class FareCalculatorService {
      * The price is multiplied by 0.95 to get the discounted price
      */
     if (parkedVehicleDuration > Fare.FREE_HALF_HOUR
-        && ticketDAO.isRecurringRegistration(ticket.getVehicleRegNumber())) {
+        && ticketDao.isRecurringRegistration(ticket.getVehicleRegNumber())) {
       parkedVehicleDuration = Math.ceil(parkedVehicleDuration);
       System.out.println(
           "Welcome back. As a returning user you have 5% discount off !!");
