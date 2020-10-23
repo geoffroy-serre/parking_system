@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author heimdall
  * 
- *
  */
 public class App {
   private static final Logger logger = LogManager.getLogger("App");

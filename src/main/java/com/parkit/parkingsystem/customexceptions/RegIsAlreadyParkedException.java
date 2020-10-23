@@ -7,9 +7,8 @@ public class RegIsAlreadyParkedException extends Exception {
   /**
    * Throwed ifRegistration is already in parking.
    * 
-   * @param errorMessage
+   * @param errorMessage String
    **/
-
   public RegIsAlreadyParkedException(String errorMessage) {
     super(errorMessage);
   }

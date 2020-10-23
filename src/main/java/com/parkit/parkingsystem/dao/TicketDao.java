@@ -27,10 +27,11 @@ public class TicketDao {
    **/
   public boolean saveTicket(Ticket ticket) {
     Connection con = null;
+    PreparedStatement ps = null;
 
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con.prepareStatement(DbConstants.SAVE_TICKET);
+      ps = con.prepareStatement(DbConstants.SAVE_TICKET);
       ps.setInt(1, ticket.getParkingSpot().getId());
       ps.setString(2, ticket.getVehicleRegNumber());
       ps.setDouble(3, ticket.getPrice());
@@ -38,11 +39,8 @@ public class TicketDao {
       ps.setTimestamp(4, timeStamp);
       ps.setTimestamp(5, (ticket.getOutTime() == null) ? null : (timeStamp));
       boolean result = ps.execute();
-      
-      dataBaseConfig.closePreparedStatement(ps);
-     
+
       return result;
-      
 
     } catch (ClassNotFoundException e) {
       logger.error(
@@ -55,6 +53,7 @@ public class TicketDao {
           e);
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closePreparedStatement(ps);
     }
 
     return false;
@@ -69,13 +68,14 @@ public class TicketDao {
   public Ticket getTicketToGetOut(String vehicleRegNumber) {
     Connection con = null;
     Ticket ticket = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
 
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con
-          .prepareStatement(DbConstants.GET_TICKET_TO_GET_OUT);
+      ps = con.prepareStatement(DbConstants.GET_TICKET_TO_GET_OUT);
       ps.setString(1, vehicleRegNumber);
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
       if (rs.next()) {
         ticket = new Ticket();
         ParkingSpot parkingSpot = new ParkingSpot(rs.getInt(1),
@@ -85,16 +85,12 @@ public class TicketDao {
         ticket.setVehicleRegNumber(vehicleRegNumber);
         ticket.setPrice(rs.getDouble(3));
         ticket.setInTime(rs.getTimestamp(4).toLocalDateTime());
-        
+
       } else if (!rs.next()) {
-        System.out
-            .println("No vehicle to exit with this registration number");
-        
-        
+        System.out.println("No vehicle to exit with this registration number");
+
       }
-      dataBaseConfig.closeResultSet(rs);
-      dataBaseConfig.closePreparedStatement(ps);
-      
+
     } catch (ClassNotFoundException e) {
       logger.error(
           "Error fetching next available slot. Class not found in TicketDAO getTicketToGetOut()",
@@ -104,8 +100,10 @@ public class TicketDao {
       logger.error(
           "Error fetching next available slotin TicketDAO getTicketToGetOut()",
           e);
-    }  finally {
+    } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closeResultSet(rs);
+      dataBaseConfig.closePreparedStatement(ps);
 
     }
     return ticket;
@@ -121,17 +119,18 @@ public class TicketDao {
   public boolean updateTicket(Ticket ticket) {
 
     Connection con = null;
+    PreparedStatement ps = null;
 
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con.prepareStatement(DbConstants.UPDATE_TICKET);
+      ps = con.prepareStatement(DbConstants.UPDATE_TICKET);
       ps.setDouble(1, ticket.getPrice());
       // was ticket.getintime()
       Timestamp timeStamp = Timestamp.valueOf(ticket.getOutTime());
       ps.setTimestamp(2, timeStamp);
       ps.setInt(3, ticket.getId());
       ps.execute();
-      dataBaseConfig.closePreparedStatement(ps);
+
       return true;
     } catch (ClassNotFoundException e) {
       logger.error(
@@ -143,6 +142,7 @@ public class TicketDao {
           e);
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closePreparedStatement(ps);
     }
 
     return false;
@@ -161,17 +161,17 @@ public class TicketDao {
 
     Connection con = null;
     boolean result = false;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
 
     try {
 
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con
-          .prepareStatement(DbConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);
+      ps = con.prepareStatement(DbConstants.VERIFY_REG_IN_DB_OUTTIME_NULL);
       ps.setString(1, reg);
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
       result = rs.next();
-      dataBaseConfig.closeResultSet(rs);
-      dataBaseConfig.closePreparedStatement(ps);
+
     } catch (ClassNotFoundException e) {
       logger.error(
           "Error to know if the registration is known.Class not found in TicketDAO.isKnownRegistrationInParking()",
@@ -182,6 +182,8 @@ public class TicketDao {
           e);
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closeResultSet(rs);
+      dataBaseConfig.closePreparedStatement(ps);
 
     }
     return result;
@@ -189,7 +191,7 @@ public class TicketDao {
   }
 
   /**
-   * Use to know if the registration had already been used in and out of the
+   * Used to know if the registration had already been used in and out of the
    * parking.
    * 
    * @param reg Vehicle Registration
@@ -199,17 +201,17 @@ public class TicketDao {
 
     Connection con = null;
     boolean result = false;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
     try {
 
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con
-          .prepareStatement(DbConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);
+      ps = con.prepareStatement(DbConstants.VERIFY_REG_IN_DB_OUTTIME_NOT_NULL);
       ps.setString(1, reg);
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
 
       result = rs.next();
-      dataBaseConfig.closeResultSet(rs);
-      dataBaseConfig.closePreparedStatement(ps);
+
     } catch (ClassNotFoundException e) {
       logger.error(
           "Error knowing if the registration is known.Class not found in TicketDAO.isKnownRegistrationInParking()",
@@ -220,6 +222,8 @@ public class TicketDao {
           e);
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closeResultSet(rs);
+      dataBaseConfig.closePreparedStatement(ps);
 
     }
     return result;

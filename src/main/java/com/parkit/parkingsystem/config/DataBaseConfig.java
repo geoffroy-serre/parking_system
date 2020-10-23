@@ -34,7 +34,6 @@ public class DataBaseConfig {
    * 
    * @param con
    **/
-
   public void closeConnection(Connection con) {
     if (con != null) {
       try {
@@ -51,7 +50,6 @@ public class DataBaseConfig {
    * 
    * @param ps
    **/
-
   public void closePreparedStatement(PreparedStatement ps) {
     if (ps != null) {
       try {

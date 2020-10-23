@@ -66,7 +66,7 @@ public class ParkingDaoTest {
   }
 
   @Test
-  public void should_Return_Parking_Full() throws ParkingIsFullException {
+  public void should_Return_Parking_Spot_0_for_full() throws ParkingIsFullException {
     parkingSpot = new ParkingSpot(1, ParkingType.CAR, false);
     ParkingSpot parkingSpot2 = new ParkingSpot(2, ParkingType.CAR, false);
     ParkingSpot parkingSpot3 = new ParkingSpot(3, ParkingType.CAR, false);

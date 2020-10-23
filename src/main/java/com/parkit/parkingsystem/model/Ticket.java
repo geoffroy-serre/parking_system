@@ -2,7 +2,12 @@ package com.parkit.parkingsystem.model;
 
 import java.time.LocalDateTime;
 
-
+/**
+ * Ticket have in and out time, parking spot, and price and an Id.
+ * 
+ * @author heimdall
+ *
+ */
 public class Ticket {
   private int id;
   private ParkingSpot parkingSpot;

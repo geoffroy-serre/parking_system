@@ -1,5 +1,6 @@
 package com.parkit.parkingsystem;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -144,6 +145,24 @@ class ParkingServiceTest {
     Assertions.assertThat(inTime).isEqualTo(ticket.getInTime());
     Assertions.assertThat(ticketArgCapt.getValue().getOutTime())
         .isEqualTo(ticket.getOutTime());
+  }
+
+  @Test
+  public void processing_Incoming_Vehicle_Full_Parking_Test()
+      throws RegIsAlreadyParkedException, InterruptedException,
+      RegistrationLengthException, ParkingIsFullException {
+    
+    ParkingService parkingService = new ParkingService(inputReaderUtil,
+        parkingSpotDAO, ticketDAO);
+
+    when(parkingSpotDAO.isThereAvailableSlot(ParkingType.CAR))
+        .thenReturn(false);
+    when(inputReaderUtil.readSelection()).thenReturn(1);
+
+    assertThatExceptionOfType(ParkingIsFullException.class).isThrownBy(() -> {
+      parkingService.processIncomingVehicle();
+    });
+
   }
 
   @Test

@@ -3,7 +3,6 @@ package com.parkit.parkingsystem.dao;
 import com.parkit.parkingsystem.config.DataBaseConfig;
 import com.parkit.parkingsystem.constants.DbConstants;
 import com.parkit.parkingsystem.constants.ParkingType;
-import com.parkit.parkingsystem.customexceptions.ParkingIsFullException;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,24 +21,22 @@ public class ParkingSpotDao {
    * 
    * @param parkingType Type of parking depending vehicle type
    * @return int Parking Spot
-   * @throws ParkingIsFullException
    * 
    **/
   public int getNextAvailableSlot(ParkingType parkingType) {
     Connection con = null;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
     int result = 0;
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con
-          .prepareStatement(DbConstants.GET_NEXT_PARKING_SPOT);
+      ps = con.prepareStatement(DbConstants.GET_NEXT_PARKING_SPOT);
       ps.setString(1, parkingType.toString());
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
       if (rs.next()) {
         result = rs.getInt(1);
       }
 
-      dataBaseConfig.closeResultSet(rs);
-      dataBaseConfig.closePreparedStatement(ps);
     } catch (ClassNotFoundException ex) {
       logger.error(
           "Error updating parking info Class not found in ParkingSpotDAO getNetAvailableSlot()",
@@ -52,6 +49,8 @@ public class ParkingSpotDao {
 
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closeResultSet(rs);
+      dataBaseConfig.closePreparedStatement(ps);
     }
     return result;
   }
@@ -61,29 +60,24 @@ public class ParkingSpotDao {
    * 
    * @param parkingType Type of vehicle
    * @return boolean is Available
-   * @throws ParkingIsFullException
    * 
    */
   public boolean isThereAvailableSlot(ParkingType parkingType) {
     Connection con = null;
     boolean availability = false;
+    PreparedStatement ps = null;
+    ResultSet rs = null;
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con
-          .prepareStatement(DbConstants.GET_NEXT_PARKING_SPOT);
+      ps = con.prepareStatement(DbConstants.GET_NEXT_PARKING_SPOT);
       ps.setString(1, parkingType.toString());
-      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
       rs.next();
-      System.out.println(rs.getInt(1));
 
       if (rs.getInt(1) > 0) {
-
         availability = true;
-
       }
 
-      dataBaseConfig.closeResultSet(rs);
-      dataBaseConfig.closePreparedStatement(ps);
     } catch (ClassNotFoundException ex) {
       logger.error(
           "Error updating parking info Class not found in ParkingSpotDAO isThereAvailableSlot",
@@ -96,6 +90,8 @@ public class ParkingSpotDao {
 
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closeResultSet(rs);
+      dataBaseConfig.closePreparedStatement(ps);
     }
     return availability;
 
@@ -108,13 +104,13 @@ public class ParkingSpotDao {
    * @return boolean updated Parking
    **/
   public boolean updateParking(ParkingSpot parkingSpot) {
-    // update the availability fo that parking slot
+    // update the availability for that parking slot
     Connection con = null;
     boolean result = false;
+    PreparedStatement ps = null;
     try {
       con = dataBaseConfig.getConnection();
-      PreparedStatement ps = con
-          .prepareStatement(DbConstants.UPDATE_PARKING_SPOT);
+      ps = con.prepareStatement(DbConstants.UPDATE_PARKING_SPOT);
       ps.setBoolean(1, parkingSpot.isAvailable());
       ps.setInt(2, parkingSpot.getId());
       int updateRowCount = ps.executeUpdate();
@@ -134,6 +130,7 @@ public class ParkingSpotDao {
 
     } finally {
       dataBaseConfig.closeConnection(con);
+      dataBaseConfig.closePreparedStatement(ps);
     }
     return result;
 

@@ -43,7 +43,6 @@ public class ParkingService {
    * @param parkingSpotDao  ParkingSpotDao
    * @param ticketDao       TicketDao
    **/
-
   public ParkingService(InputReaderUtil inputReaderUtil,
       ParkingSpotDao parkingSpotDao, TicketDao ticketDao) {
     this.inputReaderUtil = inputReaderUtil;
@@ -122,7 +121,8 @@ public class ParkingService {
   public String getVehicleRegNumber() throws RegistrationLengthException {
     System.out.println(
         "Please type the vehicle registration number and press enter key:");
-    return inputReaderUtil.controlVehicleRegistrationNumber(inputReaderUtil.getInputForVehicleRegNumber());
+    return inputReaderUtil.controlVehicleRegistrationNumber(
+        inputReaderUtil.getInputForVehicleRegNumber());
   }
 
   /**
@@ -130,8 +130,6 @@ public class ParkingService {
    * parking spot depending of vehicle type , and avability.
    * 
    * @return parkingSpot getNextParkingNumberIfAvailable
-   * 
-   * 
    */
   public ParkingSpot getNextParkingNumber(ParkingType parkingType) {
     int parkingNumber = 0;
@@ -144,6 +142,11 @@ public class ParkingService {
     return parkingSpot;
   }
 
+  /**
+   * Prompt userfor vehicle type.
+   * 
+   * @return Parking.Type
+   */
   private ParkingType getVehicleType() {
     System.out.println("Please select vehicle type from menu");
     System.out.println("1 CAR");
@@ -166,10 +169,9 @@ public class ParkingService {
   }
 
   /**
-   * Generate fare depending of parking duration, and type of vehicle and if
-   * it's a recurrent vehcile registration Parking Spot avaibility is updated
-   * Ticket information are retrieved from DB. Ticket information in DB is
-   * updated with price and outTime. Registration null, 0, or >10
+   * Generate price, set parking spot available back.
+   * 
+   * @throws RegistrationLengthException Registration issue
    */
   public void processExitingVehicle() throws RegistrationLengthException {
 

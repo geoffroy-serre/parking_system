@@ -73,6 +73,9 @@ public class InteractiveShell {
     }
   }
 
+  /**
+   * Textual menu incoporated in loadInterface().
+   */
   private static void loadMenu() {
     System.out.println("!!--- Free Parking for 30mn or less ---!!");
     System.out.println("!!--- Returning users got 5% discount off ---!!\n");
